@@ -1,264 +1,365 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <title>วัดอุณหภูมิและความชื้นในอากาศ (Windy.com)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Sarabun', Arial, sans-serif;
-            margin: 0;
-            /* เปลี่ยนพื้นหลังเป็นภาพสภาพอากาศ */
-            background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1500&q=80') no-repeat center center fixed;
-            background-size: cover;
-            color: #222;
-            min-height: 100vh;
-        }
-        /* เพิ่ม overlay ให้พื้นหลังอ่านง่าย */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(227,240,255,0.75);
-            z-index: 0;
-        }
-        header, main {
-            position: relative;
-            z-index: 1;
-        }
-        header {
-            background: linear-gradient(90deg, #1976d2 60%, #7b1fa2 100%);
-            color: #fff;
-            padding: 36px 0 24px 0;
-            text-align: center;
-            box-shadow: 0 4px 16px rgba(25, 118, 210, 0.15);
-        }
-        header h1 {
-            font-size: 2.6em;
-            margin-bottom: 0.2em;
-            letter-spacing: 1px;
-        }
-        header p {
-            font-size: 1.2em;
-            opacity: 0.95;
-        }
-        main {
-            max-width: 950px;
-            margin: 40px auto 32px auto;
-            padding: 32px 28px 28px 28px;
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 6px 32px rgba(123, 31, 162, 0.10), 0 1.5px 8px rgba(25, 118, 210, 0.08);
-        }
-        .desc, .explain, .howto, .note {
-            border-radius: 8px;
-            margin-bottom: 22px;
-            padding: 18px 20px 14px 20px;
-        }
-        .desc {
-            font-size: 1.08em;
-            color: #333;
-            background: #f3eaff;
-            border-left: 6px solid #7b1fa2;
-        }
-        .desc strong {
-            color: #7b1fa2;
-        }
-        .explain {
-            background: #e3f0ff;
-            border-left: 6px solid #1976d2;
-            color: #222;
-            margin-bottom: 18px;
-        }
-        .explain h2 {
-            color: #1976d2;
-            margin-top: 0;
-        }
-        .howto {
-            background: #fffbe7;
-            border-left: 6px solid #ffd600;
-            color: #333;
-        }
-        .howto h2 {
-            color: #bfa100;
-            margin-top: 0;
-        }
-        .humidity-table-section {
-            background: #f7fafd;
-            border-left: 6px solid #00bcd4;
-            border-radius: 8px;
-            margin-bottom: 22px;
-            padding: 18px 20px 18px 20px;
-        }
-        .humidity-table-section h2 {
-            color: #0097a7;
-            margin-top: 0;
-        }
-        .humidity-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 12px 0 0 0;
-            font-size: 1em;
-            background: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 6px rgba(0,188,212,0.07);
-        }
-        .humidity-table th, .humidity-table td {
-            padding: 10px 8px;
-            text-align: center;
-        }
-        .humidity-table th {
-            background: #00bcd4;
-            color: #fff;
-            font-weight: bold;
-        }
-        .humidity-table tr:nth-child(even) {
-            background: #e0f7fa;
-        }
-        .humidity-table tr:nth-child(odd) {
-            background: #f7fafd;
-        }
-        .humidity-table td.level {
-            font-weight: bold;
-        }
-        .humidity-table td.good {
-            color: #388e3c;
-        }
-        .humidity-table td.warn {
-            color: #fbc02d;
-        }
-        .humidity-table td.bad {
-            color: #d32f2f;
-        }
-        .windy-btn {
-            display: inline-block;
-            margin-bottom: 18px;
-            background: linear-gradient(90deg, #1976d2 60%, #7b1fa2 100%);
-            color: #fff;
-            padding: 10px 30px;
-            border-radius: 24px;
-            font-size: 1.08em;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
-            transition: background 0.2s, box-shadow 0.2s;
-        }
-        .windy-btn:hover {
-            background: linear-gradient(90deg, #1565c0 60%, #6a1b9a 100%);
-            box-shadow: 0 4px 16px rgba(123, 31, 162, 0.13);
-        }
-        iframe {
-            width: 100%;
-            height: 520px;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 2px 16px rgba(25, 118, 210, 0.10);
-            margin-bottom: 10px;
-        }
-        .note {
-            color: #555;
-            font-size: 1em;
-            background: #e3f0ff;
-            border-left: 5px solid #1976d2;
-            margin-top: 22px;
-        }
-        ul {
-            margin-top: 0.5em;
-            margin-bottom: 0.5em;
-        }
-        @media (max-width: 700px) {
-            main {
-                padding: 12px 4vw 18px 4vw;
-            }
-            iframe {
-                height: 320px;
-            }
-            header h1 {
-                font-size: 1.5em;
-            }
-            .humidity-table th, .humidity-table td {
-                padding: 7px 2px;
-                font-size: 0.95em;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ถามตอบสายการบินต่างประเทศ</title>
+  <style>
+    body {
+      font-family: 'Prompt', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: url('https://www.paddleyourownkanoo.com/wp-content/uploads/2023/11/a350-emirates-order.png') center center/cover no-repeat fixed;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+      background: linear-gradient(120deg, #e0eafcdd 0%, #b6c7e6ee 100%);
+      pointer-events: none;
+    }
+    .container {
+      max-width: 720px;
+      margin: 70px auto 40px auto;
+      background: rgba(255,255,255,0.93);
+      padding: 48px 36px 36px 36px;
+      border-radius: 36px;
+      box-shadow: 0 18px 56px 0 rgba(31, 38, 135, 0.18);
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(2.5px);
+      border: 2px solid #dbeafe;
+      animation: fadein 1.2s;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    h1 {
+      text-align: center;
+      color: #1a2233;
+      margin-bottom: 18px;
+      letter-spacing: 2px;
+      font-weight: 900;
+      font-size: 2.7em;
+      text-shadow: 0 2px 16px #b3c7e033, 0 1px 0 #fff;
+      background: linear-gradient(90deg, #f8fafc 60%, #e0eafc 100%);
+      border-radius: 18px;
+      padding: 18px 0 12px 0;
+      box-shadow: 0 2px 18px #b6c7e633;
+      -webkit-background-clip: unset;
+      -webkit-text-fill-color: unset;
+    }
+    .from-thailand {
+      display: block;
+      text-align: center;
+      color: #2563eb;
+      font-size: 1.15em;
+      margin-bottom: 28px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #e0f2fe 60%, #f0faff 100%);
+      border-radius: 14px;
+      padding: 8px 0 6px 0;
+      box-shadow: 0 1px 8px #b6c7e633;
+    }
+    .qa-list {
+      margin-bottom: 36px;
+      min-height: 60px;
+      transition: min-height 0.2s;
+    }
+    .qa-item {
+      background: linear-gradient(90deg, #f8fafc 0%, #e0e7ff 100%);
+      margin: 28px 0;
+      padding: 30px 32px 24px 32px;
+      border-radius: 22px;
+      border-left: 0;
+      border-top: 9px solid #2563eb;
+      position: relative;
+      padding-top: 44px;
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.10);
+      transition: transform 0.15s, box-shadow 0.15s;
+      overflow: hidden;
+      animation: fadein 0.7s;
+    }
+    .qa-item::before {
+      content: "🛫";
+      position: absolute;
+      top: 12px;
+      left: 40px;
+      font-size: 2em;
+      opacity: 0.82;
+      filter: drop-shadow(0 2px 8px #b6c7e688);
+      animation: fly 2.5s linear infinite alternate;
+    }
+    @keyframes fly {
+      0% { transform: translateX(0) rotate(-8deg);}
+      100% { transform: translateX(24px) rotate(8deg);}
+    }
+    .qa-item:hover {
+      transform: translateY(-4px) scale(1.018);
+      box-shadow: 0 10px 32px rgba(56, 189, 248, 0.16);
+      background: linear-gradient(90deg, #e0e7ff 0%, #f8fafc 100%);
+    }
+    .question {
+      font-weight: bold;
+      color: #2563eb;
+      font-size: 1.18em;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.5px;
+      background: linear-gradient(90deg, #e0f2fe 60%, #f0faff 100%);
+      border-radius: 8px;
+      padding: 8px 12px;
+      box-shadow: 0 1px 6px #b6c7e622;
+    }
+    .answer {
+      color: #1e293b;
+      background: linear-gradient(90deg, #e0f2fe 0%, #f8fafc 100%);
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-top: 10px;
+      margin-left: 0;
+      font-size: 1.13em;
+      box-shadow: 0 1px 10px #b6c7e644;
+      border-left: 7px solid #2563eb;
+      position: relative;
+      line-height: 1.8;
+      animation: fadein 0.7s;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .answer::before {
+      content: "🤖";
+      margin-right: 12px;
+      font-size: 1.22em;
+      vertical-align: middle;
+      opacity: 0.85;
+      color: #2563eb;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      background: linear-gradient(90deg, #f0faff 60%, #e0f2fe 100%);
+      border-radius: 18px;
+      padding: 32px 22px 22px 22px;
+      box-shadow: 0 2px 16px #b6c7e633;
+      margin-top: 10px;
+      animation: fadein 1.2s;
+    }
+    .form-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .form-row > * {
+      flex: 1 1 180px;
+      min-width: 0;
+    }
+    input, select {
+      padding: 16px;
+      font-size: 1.15em;
+      border: 2px solid #2563eb;
+      border-radius: 14px;
+      background: #f8fafc;
+      color: #1e293b;
+      transition: border 0.2s, box-shadow 0.2s;
+      outline: none;
+      box-shadow: 0 1px 8px #b6c7e622;
+    }
+    input:focus, select:focus {
+      border: 2.5px solid #0ea5e9;
+      box-shadow: 0 0 0 2px #b6c7e699;
+    }
+    button {
+      padding: 16px;
+      font-size: 1.15em;
+      color: #fff;
+      background: linear-gradient(90deg, #2563eb 0%, #0ea5e9 100%);
+      border: none;
+      border-radius: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 16px #b6c7e655;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #0ea5e9 0%, #2563eb 100%);
+      box-shadow: 0 4px 22px #2563eb33;
+      transform: scale(1.03);
+    }
+    .loading {
+      color: #2563eb;
+      font-style: italic;
+      margin-top: 10px;
+      margin-left: 8px;
+      font-size: 1.13em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: fadein 0.5s;
+    }
+    .loading::before {
+      content: "⏳";
+      font-size: 1.1em;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px 2vw 8px 2vw;
+      }
+      h1 {
+        font-size: 1.3em;
+      }
+      .qa-item {
+        padding: 18px 8px 8px 8px;
+      }
+      form {
+        padding: 12px 4px 8px 4px;
+      }
+      .form-row {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>วัดอุณหภูมิและความชื้นในอากาศ</h1>
-        <p>ดูข้อมูลอุณหภูมิ ความชื้นในอากาศ และความชื้นสัมพัทธ์จาก Windy.com</p>
-    </header>
-    <main>
-        <div class="desc">
-            เว็บไซต์นี้ให้บริการดูข้อมูล <b>อุณหภูมิ</b>, <b>ความชื้นในอากาศ</b> และ <b>ความชื้นสัมพัทธ์</b> แบบเรียลไทม์ โดยใช้ข้อมูลจาก <a href="https://www.windy.com/th/" target="_blank" rel="noopener">Windy.com</a> ซึ่งเป็นแหล่งข้อมูลสภาพอากาศที่ได้รับความนิยมทั่วโลก
-        </div>
-        <div class="explain">
-            <h2>อธิบายแต่ละค่าที่แสดง</h2>
-            <ul>
-                <li><b>อุณหภูมิ (Temperature)</b> คือ ระดับความร้อนหรือเย็นของอากาศ วัดเป็นองศาเซลเซียส (°C) หรือฟาเรนไฮต์ (°F)</li>
-                <li><b>ความชื้นในอากาศ (Absolute Humidity)</b> คือ ปริมาณไอน้ำที่มีอยู่ในอากาศต่อหนึ่งหน่วยปริมาตร (g/m³) ซึ่งแสดงถึงปริมาณน้ำจริงในอากาศ</li>
-                <li><b>ความชื้นสัมพัทธ์ (Relative Humidity)</b> คือ เปอร์เซ็นต์ของปริมาณไอน้ำในอากาศเมื่อเทียบกับปริมาณสูงสุดที่อากาศจะรับได้ ณ อุณหภูมินั้น (เช่น 60% หมายถึงอากาศมีไอน้ำอยู่ 60% ของที่อิ่มตัว)</li>
-            </ul>
-            <p>
-                <b>ความสำคัญ:</b> อุณหภูมิและความชื้นมีผลต่อสุขภาพ ความรู้สึกสบาย และการดำเนินชีวิต เช่น อากาศร้อนชื้นอาจทำให้รู้สึกเหนียวตัว หรืออากาศแห้งเกินไปอาจทำให้ผิวแห้ง
-            </p>
-        </div>
-        <div class="humidity-table-section">
-            <h2>ตารางค่าความชื้นสัมพัทธ์และผลกระทบต่อร่างกาย</h2>
-            <p>
-                ค่าความชื้นสัมพัทธ์ (Relative Humidity) มีผลต่อความรู้สึกสบายและสุขภาพของมนุษย์ ตารางนี้แสดงช่วงค่าความชื้นสัมพัทธ์และผลกระทบที่อาจเกิดขึ้น
-            </p>
-            <table class="humidity-table">
-                <thead>
-                    <tr>
-                        <th>ค่าความชื้นสัมพัทธ์ (%)</th>
-                        <th>ระดับ</th>
-                        <th>ผลกระทบต่อร่างกาย</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>0 - 30</td>
-                        <td class="level bad">ต่ำ</td>
-                        <td class="bad">อากาศแห้ง ผิวแห้ง ระคายเคืองตาและทางเดินหายใจ</td>
-                    </tr>
-                    <tr>
-                        <td>31 - 60</td>
-                        <td class="level good">เหมาะสม</td>
-                        <td class="good">รู้สึกสบาย เหมาะกับการอยู่อาศัยและทำงาน</td>
-                    </tr>
-                    <tr>
-                        <td>61 - 70</td>
-                        <td class="level warn">ค่อนข้างสูง</td>
-                        <td class="warn">เริ่มรู้สึกอึดอัด เหนียวตัว เหงื่อระเหยช้า</td>
-                    </tr>
-                    <tr>
-                        <td>71 - 100</td>
-                        <td class="level bad">สูงมาก</td>
-                        <td class="bad">อากาศอบอ้าว เหงื่อไม่ระเหย เสี่ยงต่อการเกิดเชื้อราและแบคทีเรีย</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div style="font-size:0.97em;color:#555;margin-top:10px;">
-                อ้างอิง: <a href="https://i-synes.com/blog/heat-and-humidity/" target="_blank" rel="noopener">i-synes.com</a>
-            </div>
-        </div>
-        <div class="howto">
-            <h2>วิธีใช้งานแผนที่ Windy.com</h2>
-            <ol>
-                <li>เลือกชั้นข้อมูล (Layers) ที่มุมขวาบนของแผนที่ เช่น <b>Temperature</b> (อุณหภูมิ), <b>Humidity</b> (ความชื้นสัมพัทธ์), <b>Dew point</b> (จุดน้ำค้าง) เป็นต้น</li>
-                <li>คลิกที่ตำแหน่งบนแผนที่เพื่อดูค่าต่าง ๆ แบบเรียลไทม์</li>
-                <li>สามารถขยาย/ย่อแผนที่ หรือเลื่อนไปยังพื้นที่ที่ต้องการได้</li>
-            </ol>
-        </div>
-        <a class="windy-btn" href="https://www.windy.com/th/-เรดาร์สภาพอากาศ-radar?radar,13.443,104.150,6,m:d2AaiW1" target="_blank" rel="noopener">
-            เปิดดูแผนที่เต็มหน้าจอที่ Windy.com
-        </a>
-        <iframe src="https://embed.windy.com/embed2.html?lat=13.443&lon=104.150&detailLat=13.443&detailLon=104.150&width=650&height=450&zoom=6&level=surface&overlay=radar&product=radar&menu=&message=true&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1" allowfullscreen></iframe>
-        <div class="note">
-            <b>หมายเหตุ:</b> ข้อมูลอุณหภูมิและความชื้นในอากาศและความชื้นสัมพัทธ์นี้นำมาจาก <a href="https://www.windy.com/th/" target="_blank" rel="noopener">Windy.com</a> ซึ่งเป็นบริการแผนที่สภาพอากาศแบบเรียลไทม์ที่มีความแม่นยำสูง เหมาะสำหรับการติดตามสภาพอากาศในแต่ละพื้นที่ทั่วโลก
-        </div>
-    </main>
+  <div class="container">
+    <h1>ถามตอบสายการบินต่างประเทศ</h1>
+    <span class="from-thailand">* จุดเริ่มต้นของการเดินทาง: <b>ประเทศไทย</b></span>
+    <div class="qa-list" id="qa-list">
+      <!-- Q&A items will appear here -->
+    </div>
+    <form id="qa-form">
+      <div class="form-row">
+        <input type="text" id="destination" placeholder="จะเดินทางไปที่ไหน? (เช่น ญี่ปุ่น, อังกฤษ, เกาหลี)" required>
+        <select id="cabin" required>
+          <option value="" disabled selected>เลือกชั้นโดยสาร</option>
+          <option value="economy">ชั้นประหยัด (Economy)</option>
+          <option value="premium">ชั้นประหยัดพิเศษ (Premium Economy)</option>
+          <option value="business">ชั้นธุรกิจ (Business)</option>
+          <option value="first">ชั้นหนึ่ง (First Class)</option>
+        </select>
+      </div>
+      <button type="submit">ถาม AI</button>
+    </form>
+  </div>
+  <script>
+    // filepath: c:\Users\COM2--20\Desktop\งาน\index.html
+    const qaList = document.getElementById('qa-list');
+    const qaForm = document.getElementById('qa-form');
+    const destinationInput = document.getElementById('destination');
+    const cabinInput = document.getElementById('cabin');
+
+    const cabinMap = {
+      economy: "ชั้นประหยัด (Economy)",
+      premium: "ชั้นประหยัดพิเศษ (Premium Economy)",
+      business: "ชั้นธุรกิจ (Business)",
+      first: "ชั้นหนึ่ง (First Class)"
+    };
+
+    // เฉพาะสายการบินไทยและสายการบินต่างประเทศที่บินเข้าไทย
+    const airlines = [
+      "Thai Airways (TG)", "Bangkok Airways (PG)", "Thai AirAsia (FD)", "Thai Lion Air (SL)", "Nok Air (DD)",
+      "Singapore Airlines (SQ)", "Emirates (EK)", "Qatar Airways (QR)", "Japan Airlines (JL)", "ANA (NH)",
+      "Korean Air (KE)", "Asiana Airlines (OZ)", "Cathay Pacific (CX)", "EVA Air (BR)", "China Airlines (CI)",
+      "Lufthansa (LH)", "Air France (AF)", "Qantas (QF)", "British Airways (BA)", "Turkish Airlines (TK)",
+      "Etihad Airways (EY)", "Swiss (LX)", "Finnair (AY)", "United Airlines (UA)", "Malaysia Airlines (MH)",
+      "Vietnam Airlines (VN)", "Philippine Airlines (PR)", "Scoot (TR)", "Jetstar Asia (3K)", "Air India (AI)",
+      "Oman Air (WY)", "KLM (KL)", "Austrian Airlines (OS)", "Garuda Indonesia (GA)", "Royal Jordanian (RJ)",
+      "China Eastern (MU)", "China Southern (CZ)", "XiamenAir (MF)", "Air New Zealand (NZ)", "Brussels Airlines (SN)"
+    ];
+
+    let currentQA = null;
+
+    async function getAIAnswer(destination, cabin) {
+      const cabinText = cabinMap[cabin] || "";
+      const airlineList = airlines.join(", ");
+      // ขอให้ AI ตอบสายการบินเดียวที่ดีที่สุด ณ ตอนนั้น และสรุปสั้น กระชับ
+      const prompt = `
+คุณคือผู้ช่วยแนะนำเที่ยวบินจากประเทศไทยไปต่างประเทศ
+- จุดเริ่มต้น: ประเทศไทย
+- ปลายทาง: ${destination}
+- ชั้นโดยสาร: ${cabinText}
+- กรุณาแนะนำเพียง 1 สายการบินที่ดีที่สุด ณ ตอนนี้ ที่มีเที่ยวบินจากไทยหรือสายการบินต่างประเทศที่บินเข้าไทย เช่น ${airlineList}
+- แจ้งเวลาเดินทางโดยประมาณและราคาประมาณ (อิงข้อมูลจริงหรือประมาณการ)
+- ตอบเป็นภาษาไทย สั้น กระชับ สรุปเข้าใจง่าย เช่น
+ตัวอย่าง: สายการบินที่แนะนำ: ... | เวลาเดินทาง: ... | ราคา: ... 
+- อ้างอิงข้อมูลจาก https://www.googleadservices.com/pagead/aclk?sa=L&ai=DChsSEwimo6_czIuOAxUBxDwCHSfiK6sYACICCAEQAhoCc2Y&co=1&gclid=EAIaIQobChMIpqOv3MyLjgMVAcQ8Ah0n4iurEAAYAyAAEgKMl_D_BwE&ohost=www.google.com&cid=CAASJeRoTcCTASQUTgfHUkvQ92vGWEkclJc5G7rLCWzlllgXvSWakPY&category=acrcp_v1_40&sig=AOD64_0i6Cr-7QjA5yo9FnFyqSdbhKuIYQ&q&adurl&ved=2ahUKEwiE9arczIuOAxUSyDgGHdyDJigQ0Qx6BAgJEAE
+      `;
+
+      const apiKey = "AIzaSyA35LCCnO0RQm4zhBJrZZPZSRIJoQvd610";
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const body = {
+        contents: [
+          { parts: [{ text: prompt }] }
+        ]
+      };
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+          // ตัดข้อความให้สั้นและดูดี
+          let answer = data.candidates[0].content.parts.map(p => p.text).join("<br>");
+          // ลบบรรทัดว่างและเว้นวรรคเกิน
+          answer = answer.replace(/^\s+|\s+$/gm, '').replace(/\n{2,}/g, '\n');
+          return answer;
+        } else {
+          return "ขออภัย ไม่สามารถดึงข้อมูลจาก AI ได้ในขณะนี้";
+        }
+      } catch (e) {
+        return "เกิดข้อผิดพลาดในการเชื่อมต่อ AI";
+      }
+    }
+
+    function renderQA() {
+      qaList.innerHTML = '';
+      if (currentQA) {
+        const item = document.createElement('div');
+        item.className = 'qa-item';
+        item.innerHTML = `
+          <div class="question">Q: จะเดินทางจาก <b>ประเทศไทย</b> ไป <b>${currentQA.destination}</b> (${currentQA.cabinText})</div>
+          <div class="answer">${currentQA.answer}</div>
+        `;
+        qaList.appendChild(item);
+      }
+    }
+
+    qaForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const destination = destinationInput.value.trim();
+      const cabin = cabinInput.value;
+      if (!destination || !cabin) return;
+      currentQA = {
+        destination,
+        cabin,
+        cabinText: cabinMap[cabin],
+        answer: '<span class="loading">AI กำลังค้นหาข้อมูล...</span>'
+      };
+      renderQA();
+      const aiAnswer = await getAIAnswer(destination, cabin);
+      currentQA.answer = aiAnswer;
+      renderQA();
+      qaForm.reset();
+    });
+
+    renderQA();
+  </script>
 </body>
 </html>
