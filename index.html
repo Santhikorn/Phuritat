@@ -243,6 +243,17 @@
     </div>
     <form id="qa-form">
       <div class="form-row">
+        <select id="origin" required>
+          <option value="" disabled selected>เลือกสนามบินต้นทาง</option>
+          <option value="BKK">สุวรรณภูมิ (BKK)</option>
+          <option value="DMK">ดอนเมือง (DMK)</option>
+          <option value="CNX">เชียงใหม่ (CNX)</option>
+          <option value="HKT">ภูเก็ต (HKT)</option>
+          <option value="KBV">กระบี่ (KBV)</option>
+          <option value="UTH">อุดรธานี (UTH)</option>
+          <option value="CEI">เชียงราย (CEI)</option>
+          <option value="HDY">หาดใหญ่ (HDY)</option>
+        </select>
         <input type="text" id="destination" placeholder="จะเดินทางไปที่ไหน? (เช่น ญี่ปุ่น, อังกฤษ, เกาหลี)" required>
         <select id="cabin" required>
           <option value="" disabled selected>เลือกชั้นโดยสาร</option>
@@ -261,6 +272,7 @@
     const qaForm = document.getElementById('qa-form');
     const destinationInput = document.getElementById('destination');
     const cabinInput = document.getElementById('cabin');
+    const originInput = document.getElementById('origin');
 
     const cabinMap = {
       economy: "ชั้นประหยัด (Economy)",
@@ -283,13 +295,14 @@
 
     let currentQA = null;
 
-    async function getAIAnswer(destination, cabin) {
+    async function getAIAnswer(origin, destination, cabin) {
       const cabinText = cabinMap[cabin] || "";
+      const originText = originInput.options[originInput.selectedIndex].text;
       const airlineList = airlines.join(", ");
       // ขอให้ AI ตอบสายการบินเดียวที่ดีที่สุด ณ ตอนนั้น และสรุปสั้น กระชับ
       const prompt = `
 คุณคือผู้ช่วยแนะนำเที่ยวบินจากประเทศไทยไปต่างประเทศ
-- จุดเริ่มต้น: ประเทศไทย
+- จุดเริ่มต้น: ${originText}
 - ปลายทาง: ${destination}
 - ชั้นโดยสาร: ${cabinText}
 - กรุณาแนะนำเพียง 1 สายการบินที่ดีที่สุด ณ ตอนนี้ ที่มีเที่ยวบินจากไทยหรือสายการบินต่างประเทศที่บินเข้าไทย เช่น ${airlineList}
@@ -334,7 +347,7 @@
         const item = document.createElement('div');
         item.className = 'qa-item';
         item.innerHTML = `
-          <div class="question">Q: จะเดินทางจาก <b>ประเทศไทย</b> ไป <b>${currentQA.destination}</b> (${currentQA.cabinText})</div>
+          <div class="question">Q: จะเดินทางจาก <b>${currentQA.originText}</b> ไป <b>${currentQA.destination}</b> (${currentQA.cabinText})</div>
           <div class="answer">${currentQA.answer}</div>
         `;
         qaList.appendChild(item);
@@ -343,17 +356,20 @@
 
     qaForm.addEventListener('submit', async function(e) {
       e.preventDefault();
+      const origin = originInput.value;
       const destination = destinationInput.value.trim();
       const cabin = cabinInput.value;
-      if (!destination || !cabin) return;
+      if (!origin || !destination || !cabin) return;
       currentQA = {
+        origin,
         destination,
         cabin,
+        originText: originInput.options[originInput.selectedIndex].text,
         cabinText: cabinMap[cabin],
         answer: '<span class="loading">AI กำลังค้นหาข้อมูล...</span>'
       };
       renderQA();
-      const aiAnswer = await getAIAnswer(destination, cabin);
+      const aiAnswer = await getAIAnswer(origin, destination, cabin);
       currentQA.answer = aiAnswer;
       renderQA();
       qaForm.reset();
